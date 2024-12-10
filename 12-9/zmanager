@@ -1,0 +1,91 @@
+using UnityEngine;
+using System.Collections.Generic;
+//using System;
+
+public class ZManager : MonoBehaviour
+{
+    public static ZManager instance; // Singleton for easy access
+    public List<GameObject> enemies = new List<GameObject>(); // List to store all enemies
+    public GameObject enemyPrefab; // Reference to the enemy prefab to be spawned
+    public Vector3 spawnPosition = new Vector3(0, 10, 0);
+    private int x;
+    private int y;
+    private float timer = 0f; // Timer variable to track time
+    public float interval = 30f; // Interval in seconds (30 seconds)
+
+    void Awake()
+    {
+        // Singleton pattern: ensure only one instance of the manager exists
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+       // SpawnInitialEnemy();
+        SpawnEnemy();
+        SpawnEnemy();
+    }
+
+    void SpawnEnemy()
+    {
+        if (enemyPrefab != null)
+        {
+            x = UnityEngine.Random.Range(-41, 41);
+            y = UnityEngine.Random.Range(-41, 41);
+            spawnPosition =new Vector3(x, y, 0);
+            // Instantiate the enemy prefab at the spawn position
+            GameObject initialEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+            // Register the newly spawned enemy with the ZManager
+            RegisterEnemy(initialEnemy);
+        }
+        else
+        {
+            Debug.LogError("Enemy prefab is not assigned in ZManager.");
+        }
+    }
+
+    void SpawnInitialEnemy()
+    {
+        if (enemyPrefab != null)
+        {
+            
+            spawnPosition = new Vector3(0, 0, 10);
+            // Instantiate the enemy prefab at the spawn position
+            GameObject initialEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+
+            // Register the newly spawned enemy with the ZManager
+            RegisterEnemy(initialEnemy);
+        }
+        else
+        {
+            Debug.LogError("Enemy prefab is not assigned in ZManager.");
+        }
+    }
+
+    public void RegisterEnemy(GameObject enemy)
+    {
+        enemies.Add(enemy); // Add enemy to the list
+    }
+
+    public void UnregisterEnemy(GameObject enemy)
+    {
+        enemies.Remove(enemy); // Remove enemy from the list
+    }
+
+    private void Update()
+    {
+
+        timer += Time.deltaTime;
+
+        // If 30 seconds have passed, execute the method
+        if (timer >= interval)
+        {
+            SpawnEnemy();
+            timer = 0f; // Reset the timer
+        }
+    }
+}
