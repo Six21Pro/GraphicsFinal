@@ -1,0 +1,35 @@
+using UnityEngine;
+using UnityEngine.UI;  // Import the UI namespace
+
+public class TextChanger : MonoBehaviour
+{
+    // Reference to the Text component
+    public Text myText;
+    public Text TimeRemaining;
+    private float timer = 0f; // Timer variable to track time
+    private float remainer = 0f; // Timer variable to track time
+    public float interval = 30f; // Interval in seconds (30 seconds)
+    private static int r = 2;
+
+
+    // Function to change the text dynamically
+    private void Update()
+    {
+
+        timer += Time.deltaTime;
+        remainer = 30f - timer;
+
+        // If 30 seconds have passed, execute the method
+        if (timer >= interval)
+        {
+            myText.text = "Round "+r;
+            timer = 0f;
+            r++;
+        }
+        TimeRemaining.text = "Time remaining: \n" + remainer;
+        if (remainer==0) { 
+            remainer = 30f; 
+        }
+
+    }
+}
