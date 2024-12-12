@@ -1,0 +1,24 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Punch : MonoBehaviour
+{
+    public GameObject punch;
+    // Start is called before the first frame update
+    void Start()
+    {
+        Vector3 spawnPosition = new Vector3(
+            0,0,
+            0 // Keep the spawn on the 2D plane (z-axis remains 0)
+        );
+
+        Instantiate(punch, spawnPosition, Quaternion.identity);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
