@@ -1,0 +1,38 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Zombie : MonoBehaviour
+{
+    public int health = 4;
+    public GameObject myZom;
+    // Start is called before the first frame update
+
+    // Update is called once per frame
+    void Update()
+    {
+        /* if (health == 0)
+         {
+            Destroy(myPlayer);
+
+         }*/
+    }
+
+    void Start()
+    {
+        // Register the enemy with the EnemyManager when it's spawned
+        ZManager.instance.RegisterEnemy(gameObject);
+    }
+
+    void OnDestroy()
+    {
+        // Unregister the enemy when it's destroyed
+        ZManager.instance.UnregisterEnemy(gameObject);
+    }
+
+    public void deleteZom()
+    {
+        Destroy(myZom);
+
+    }
+}
