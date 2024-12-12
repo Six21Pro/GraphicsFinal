@@ -1,0 +1,193 @@
+using UnityEngine;
+using System.Collections;
+
+// A very simplistic 'car' driving on the x-z plane.
+
+public class Drive1 : MonoBehaviour
+{
+    public GameObject target; // Reference to the target object (moving)
+    public static float speed =0.05f; // Zombies speed
+    public float stoppingDistance; // Distance at where the zombie stops 
+
+    private Vector3 direction; // Direction to the target
+    private Coords dirNormal; // Normalized direction to the target
+    public Player player;
+
+    private Vector3 bump = new Vector3(-4.0f, 0.0f, 0.0f);
+    private Vector3 bumpUp = new Vector3(0.0f, 4.0f, 0.0f);
+    private Vector3 bumpLeft = new Vector3(-4.0f, 0.0f, 0.0f);
+    private Vector3 bumpRight = new Vector3(4.0f, 0.0f, 0.0f);
+    private Vector3 bumpDown = new Vector3(0.0f, -4.0f, 0.0f);
+    public float positionThreshold = 1.0f;//was 0.1f
+
+    private void Start()
+    {
+        if (target == null)
+        {
+            target = GameObject.FindWithTag("Player"); // Find the target by tag (e.g., "Player")
+            if (target == null)
+            {
+                Debug.LogError("Target not found! Make sure an object with the 'Player' tag exists.");
+                return;
+            }
+        }
+
+        if (player == null)
+        {
+            player = GameObject.FindWithTag("Player").GetComponent<Player>(); // Find the player by tag and get the Player component
+            if (player == null)
+            {
+                Debug.LogError("Player not found! Make sure an object with the 'Player' tag and a Player component exists.");
+                return;
+            }
+        }
+
+        // Initial direction to the target
+        direction = target.transform.position - this.transform.position;
+        Coords vecCoordinates = new Coords(direction);
+        dirNormal = MyMath.Normalize(vecCoordinates);
+    }
+
+    void Update()
+    {
+        if (target == null) return;
+
+        // Calculate the distance to the target
+        float distanceToTarget = Vector3.Distance(this.transform.position, target.transform.position);
+
+        // Only move towards the target if it's farther than the stopping distance
+        if (distanceToTarget > stoppingDistance)
+        {
+            // Recalculate direction to the target every frame
+            direction = target.transform.position - this.transform.position;
+            Coords vecCoordinates = new Coords(direction);
+            dirNormal = MyMath.Normalize(vecCoordinates);
+
+            // Move towards the target
+            this.transform.position = this.transform.position + speed * dirNormal.ToVector();
+        }
+
+
+        if ((Vector3.Distance(target.transform.position, this.transform.position) <= positionThreshold) && (target.transform.position.x < this.transform.position.x))
+        {
+            //this.transform.position = this.transform.position + bumpRight;
+            target.transform.position = target.transform.position + bumpLeft;
+            player.health = player.health - 1;
+            TextChanger.livesRemaining = player.health;
+            if (player.health == 0)
+            {
+                player.deletePlayer();
+                //Destroy(myPlayer2);
+
+            }
+        }
+        if ((Vector3.Distance(target.transform.position, this.transform.position) <= positionThreshold) && (target.transform.position.x > this.transform.position.x))
+        {
+            //this.transform.position = this.transform.position + bumpLeft;
+            target.transform.position = target.transform.position + bumpRight;
+            player.health = player.health - 1;
+            TextChanger.livesRemaining = player.health;
+            if (player.health == 0)
+            {
+                player.deletePlayer();
+                //Destroy(myPlayer2);
+
+            }
+        }
+        if ((Vector3.Distance(target.transform.position, this.transform.position) <= positionThreshold) && (target.transform.position.y < this.transform.position.y))
+        {
+            //this.transform.position = this.transform.position + bumpUp;
+            target.transform.position = target.transform.position + bumpUp;
+            player.health = player.health - 1;
+            TextChanger.livesRemaining = player.health;
+            if (player.health == 0)
+            {
+                player.deletePlayer();
+                //Destroy(myPlayer2);
+
+            }
+        }
+        if ((Vector3.Distance(target.transform.position, this.transform.position) <= positionThreshold) && (target.transform.position.y > this.transform.position.y))
+        {
+            //this.transform.position = this.transform.position + bumpDown;
+            target.transform.position = target.transform.position + bumpDown;
+            player.health = player.health - 1;
+            TextChanger.livesRemaining = player.health;
+            if (player.health == 0)
+            {
+                player.deletePlayer();
+                //Destroy(myPlayer2);
+
+            }
+        }
+
+
+    }
+}
+
+
+
+
+
+/*public GameObject fuel;
+public float speed;//scalar
+
+public Vector3 direction;//9/10
+public float stoppingDistance;//9/10
+public float distanceToFuel;//9/10
+public Coords dirNormal;//9/24
+
+private void Start()
+{
+    this.transform.up = MyMath.LookAt2D(new Coords(this.transform.up), new Coords(this.transform.position),
+        new Coords(fuel.transform.position)).ToVector();//9/26
+    // speed = 0.1f;//f indicates floating point value
+    //direction = fuel.transform.position - this.transform.position;//vector//duh
+    direction = fuel.transform.position - this.transform.position;//9/10
+    Coords vecCoordinates = new Coords(direction);
+    //Coords vecCoordinates = MyMath.Normalize(new Coords(direction));//9/17//comout 9/24
+
+    Debug.Log("Before normalizing"+direction);//9/24
+    dirNormal = MyMath.Normalize(vecCoordinates);
+    Debug.Log("After normalizing"+dirNormal.ToVector());//9/24
+
+   // Coords dirNormal = MyMath.Normalize(vecCoordinates);//9/17//comout 9/24
+    Coords vectorUp = new Coords(0, 1, 0);//9/19
+    float angle = MyMath.Angle(dirNormal, vectorUp);//9/19
+
+    Coords crossProduct = MyMath.CrossProduct(vectorUp, dirNormal);//9/24
+    Debug.Log("Vector CrossProduct" + crossProduct.ToVector());
+    bool turnDir = false;
+    if(crossProduct.ToVector().z < 0)
+    {
+        turnDir = true;
+    }
+    Debug.Log("turnDirection" + turnDir);
+
+
+    Debug.Log("Angle in degrees" + 180 / Mathf.PI * angle);//9/19
+    Coords rotatedVector = MyMath.Rotate(vectorUp, angle, turnDir);//9/26 added turnDir
+    this.transform.up = new Vector3(rotatedVector.x, rotatedVector.y, rotatedVector.z);
+
+}
+
+/*void swap(int x, int y) //HE SHOWED THIS TO HIGHLIGHT ITS KINDA NONSENSE
+{
+    x = x;//should be this.x=x;
+    y = y;//and likewise
+}
+
+void Update()
+{
+
+
+    distanceToFuel = Vector3.Distance(this.transform.position, fuel.transform.position); //9/10
+    if (distanceToFuel > stoppingDistance) //9/10
+        this.transform.position = this.transform.position + speed * dirNormal.ToVector();//9/10//changed from direction to dirNo
+    // Vector3 direction = fuel.transform.position - this.transform.position;//vector//duh
+    //this.transform.position=this.transform.position + speed*direction;//He has been making many changes
+
+
+}
+
+}*/
